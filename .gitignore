@@ -1,0 +1,9 @@
+# Python virtual environments
+venv/
+venv
+
+# Other common Python ignores (optional)
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
