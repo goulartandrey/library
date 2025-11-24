@@ -1,10 +1,10 @@
-name: Library CI Pipeline
+name: Library CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]
   pull_request:
-    branches: [main]
+    branches: ["main"]
 
 jobs:
   build:
@@ -23,3 +23,38 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t g0ulart/library-api .
+
+      - name: Push Docker image
+        run: docker push g0ulart/library-api
+
+      # -------------------------
+      # DEPLOY NA EC2 (AINDA NÃO ATIVADO)
+      # Basta remover os comentários quando a EC2 estiver pronta
+      # -------------------------
+      # - name: Deploy on EC2
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.EC2_IP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     script: |
+      #       docker pull g0ulart/library-api
+      #       docker stop library || true
+      #       docker rm library || true
+      #       docker run -d -p 80:8000 --name library g0ulart/library-api
