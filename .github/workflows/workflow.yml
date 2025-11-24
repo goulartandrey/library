@@ -43,18 +43,14 @@ jobs:
       - name: Push Docker image
         run: docker push g0ulart/library-api
 
-      # -------------------------
-      # DEPLOY NA EC2 (AINDA NÃO ATIVADO)
-      # Basta remover os comentários quando a EC2 estiver pronta
-      # -------------------------
-      # - name: Deploy on EC2
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.EC2_IP }}
-      #     username: ubuntu
-      #     key: ${{ secrets.EC2_SSH_KEY }}
-      #     script: |
-      #       docker pull g0ulart/library-api
-      #       docker stop library || true
-      #       docker rm library || true
-      #       docker run -d -p 80:8000 --name library g0ulart/library-api
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull g0ulart/library-api
+            docker stop library || true
+            docker rm library || true
+            docker run -d -p 80:8000 --name library g0ulart/library-api
